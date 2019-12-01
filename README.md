@@ -8,6 +8,8 @@ wes install @wachaon/node
 
 ## usage
 
+node.js must be installed
+
 ```javascript
 const node = require( '@wachaon/node' )
 
