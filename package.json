@@ -1,0 +1,23 @@
+{
+  "name": "node",
+  "version": "0.0.1",
+  "description": "\"Call node.js from wes\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wachaon/node.git"
+  },
+  "keywords": [
+    "\"wes",
+    "node\""
+  ],
+  "author": "wachaon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wachaon/node/issues"
+  },
+  "homepage": "https://github.com/wachaon/node#readme"
+}
