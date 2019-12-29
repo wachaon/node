@@ -3,10 +3,20 @@ const { join, CurrentDirectory } = require( 'pathname' )
 const Shell = require( 'WScript.Shell' )
 const genUUID  = require( 'genUUID' )
 
-const node = function node_exec ( code ) {
+const node = function node_exec ( bindDir, bindFile, code, args ) {
     const id = genUUID() + '.js'
-    const spec = join( CurrentDirectory, id )
-    const source = `try { console.log( ( ${ code } )() ) } catch ( error ) { console.log( error.stack ) }`
+    const options = args != null ? JSON.stringify( args ) : null
+    const spec = join( bindDir, id )
+    const source = `
+__dirname = "${ bindDir }"
+__filename = "${ bindFile }"
+try {
+    const fn = ${ String( code ) }
+    const res = fn( ${ options } )
+    console.log( res )
+} catch ( error ) {
+    console.log( error.stack )
+}`
     writeTextFileSync( spec, source )
     const proc = Shell.exec( `node ${ spec }` )
     const result = proc.StdOut.ReadAll().trim()

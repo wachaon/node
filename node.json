@@ -1,6 +1,6 @@
 {
-    "{B36E43B4-4BC2-4BDE-B102-BCBC08D33442}": {
-        "source": "const { writeTextFileSync, deleteFileSync } = require( 'filesystem' )\r\nconst { join, CurrentDirectory } = require( 'pathname' )\r\nconst Shell = require( 'WScript.Shell' )\r\nconst genUUID  = require( 'genUUID' )\r\n\r\nconst node = function node_exec ( code ) {\r\n    const id = genUUID() + '.js'\r\n    const spec = join( CurrentDirectory, id )\r\n    const source = `try { console.log( ( ${ code } )() ) } catch ( error ) { console.log( error.stack ) }`\r\n    writeTextFileSync( spec, source )\r\n    const proc = Shell.exec( `node ${ spec }` )\r\n    const result = proc.StdOut.ReadAll().trim()\r\n    deleteFileSync( spec )\r\n    return result\r\n}\r\n\r\nmodule.exports = node",
+    "{77928185-BD80-43CC-8CC6-562197B9BFF3}": {
+        "source": "const { writeTextFileSync, deleteFileSync } = require( 'filesystem' )\r\nconst { join, CurrentDirectory } = require( 'pathname' )\r\nconst Shell = require( 'WScript.Shell' )\r\nconst genUUID  = require( 'genUUID' )\r\n\r\nconst node = function node_exec ( bindDir, code, args ) {\r\n    const id = genUUID() + '.js'\r\n    const options = args != null ? JSON.stringify( args ) : ''\r\n    const spec = join( bindDir, id )\r\n    const source = `try { console.log( ( ${ code } )( ${ options } ) ) } catch ( error ) { console.log( error.stack ) }`\r\n    writeTextFileSync( spec, source )\r\n    const proc = Shell.exec( `node ${ spec }` )\r\n    const result = proc.StdOut.ReadAll().trim()\r\n    deleteFileSync( spec )\r\n    return result\r\n}\r\n\r\nmodule.exports = node",
         "path": "{node}/index.js",
         "mapping": {}
     }

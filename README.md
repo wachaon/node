@@ -11,7 +11,7 @@ wes install @wachaon/node
 node.js must be installed
 
 ```javascript
-const node = require( '@wachaon/node' )
+const node = require( '@wachaon/node' ).bind( __dirname )
 
 console.log( node( () => {
     const path = require( 'path' )
