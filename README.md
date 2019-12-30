@@ -13,8 +13,10 @@ node.js must be installed
 ```javascript
 const node = require( '@wachaon/node' ).bind( null, __dirname, __filename )
 
-console.log( node( () => {
+const res = node( () => {
     const path = require( 'path' )
     return Object.keys( path )
-} ) )
+} )
+
+console.log( res )
 ```

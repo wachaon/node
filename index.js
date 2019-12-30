@@ -13,7 +13,7 @@ __filename = "${ bindFile }"
 try {
     const fn = ${ String( code ) }
     const res = fn( ${ options } )
-    console.log( res )
+    console.log( JSON.stringify( res ) )
 } catch ( error ) {
     console.log( error.stack )
 }`
@@ -21,7 +21,7 @@ try {
     const proc = Shell.exec( `node ${ spec }` )
     const result = proc.StdOut.ReadAll().trim()
     deleteFileSync( spec )
-    return result
+    return JSON.parse( result )
 }
 
 module.exports = node
