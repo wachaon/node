@@ -28,7 +28,7 @@ const node = require( '@wachaon/node' )
 
 const hoge = node( () => {
     const path = require( 'path' )
-    console.log( JSON.stringify( Object.keys( path ) )
+    console.log( JSON.stringify( Object.keys( path ), null, 2 ) )
 } )
 console.log( hoge.stdout )
 ```
