@@ -16,7 +16,6 @@ function exec_node ( code_or_spec ) {
         } )()` )
     }
 
-
     const { stdOut, stdErr } = WShell.Exec( `node ${ spec }` )
 
     let outStream = []
@@ -35,5 +34,7 @@ function exec_node ( code_or_spec ) {
 
     return { stdout: outStream.join( LF ), stderr: errStream.join( LF ) }
 }
+
+exec_node.options = { __dirname, __filename }
 
 module.exports = exec_node
