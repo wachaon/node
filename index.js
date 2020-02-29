@@ -36,6 +36,4 @@ function exec_node ( code_or_spec ) {
     return { stdout: outStream.join( LF ), stderr: errStream.join( LF ) }
 }
 
-exec_node.options = { __dirname, __filename }
-
 module.exports = exec_node
