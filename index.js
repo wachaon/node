@@ -1,5 +1,5 @@
 const WShell = require( 'WScript.Shell' )
-const { join } = require( 'pathname' )
+const { join, CurrentDirectory, toPosixSep } = require( 'pathname' )
 const { writeTextFileSync, deleteFileSync } = require( 'filesystem' )
 const genUUID = require( 'genUUID' )
 
@@ -8,7 +8,7 @@ const NONE = ''
 
 function exec_node ( code_or_spec ) {
     const isCode = typeof code_or_spec === 'function'
-    const spec = isCode ? join( exec_node.options.__dirname.replace( /[\{\}]/g, '' ), genUUID() + '.js' ) : String( code_or_spec )
+    const spec = isCode ? join( exec_node.options.__dirname, genUUID() + '.js' ) : String( code_or_spec )
 
     if ( isCode ) {
         writeTextFileSync( spec, `( () => {
@@ -35,6 +35,9 @@ function exec_node ( code_or_spec ) {
     return { stdout: outStream.join( LF ), stderr: errStream.join( LF ) }
 }
 
-exec_node.options = { __dirname, __filename }
+exec_node.options = {
+    __dirname: toPosixSep( CurrentDirectory ),
+    __filename: join( CurrentDirectory, __filename.match( /(?!\/)[^\/]+$/ )[0] )
+}
 
 module.exports = exec_node
