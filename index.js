@@ -1,27 +1,41 @@
+const WShell = require( 'WScript.Shell' )
+const { join } = require( 'pathname' )
 const { writeTextFileSync, deleteFileSync } = require( 'filesystem' )
-const { join, CurrentDirectory } = require( 'pathname' )
-const Shell = require( 'WScript.Shell' )
-const genUUID  = require( 'genUUID' )
+const genUUID = require( 'genUUID' )
 
-const node = function node_exec ( bindDir, bindFile, code, args ) {
-    const id = genUUID() + '.js'
-    const options = args != null ? JSON.stringify( args ) : null
-    const spec = join( bindDir, id )
-    const source = `
-__dirname = "${ bindDir }"
-__filename = "${ bindFile }"
-try {
-    const fn = ${ String( code ) }
-    const res = fn( ${ options } )
-    console.log( JSON.stringify( res ) )
-} catch ( error ) {
-    console.log( error.stack )
-}`
-    writeTextFileSync( spec, source )
-    const proc = Shell.exec( `node ${ spec }` )
-    const result = proc.StdOut.ReadAll().trim()
-    deleteFileSync( spec )
-    return JSON.parse( result )
+const LF = '\n'
+const NONE = ''
+
+function exec_node ( code_or_spec ) {
+    const isCode = typeof code_or_spec === 'function'
+    const spec = isCode ? join( exec_node.options.__dirname, genUUID() + '.js' ) : String( code_or_spec )
+
+    if ( isCode ) {
+        writeTextFileSync( spec, `( () => {
+            ( ${ String( code_or_spec ) } )( ${ JSON.stringify( exec_node.options ) } )
+        } )()` )
+    }
+
+
+    const { stdOut, stdErr } = WShell.Exec( `node ${ spec }` )
+
+    let outStream = []
+    let errStream = []
+
+
+    while ( !stdOut.AtEndOfStream || !stdErr.AtEndOfStream ) {
+        const outLine = stdOut.ReadLine()
+        outLine != NONE ? outStream.push( outLine ) : NONE
+
+        const errLine = stdErr.ReadLine()
+        errLine != NONE ? errStream.push( errLine ) : NONE
+    }
+
+    if ( isCode ) deleteFileSync( spec )
+
+    return { stdout: outStream.join( LF ), stderr: errStream.join( LF ) }
 }
 
-module.exports = node
+exec_node.options = { __dirname, __filename }
+
+module.exports = exec_node
