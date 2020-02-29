@@ -8,7 +8,7 @@ const NONE = ''
 
 function exec_node ( code_or_spec ) {
     const isCode = typeof code_or_spec === 'function'
-    const spec = isCode ? join( exec_node.options.__dirname, genUUID() + '.js' ) : String( code_or_spec )
+    const spec = isCode ? join( exec_node.options.__dirname.replace( /[\{\}]/g, '' ), genUUID() + '.js' ) : String( code_or_spec )
 
     if ( isCode ) {
         writeTextFileSync( spec, `( () => {
