@@ -1,6 +1,6 @@
 const WShell = require( 'WScript.Shell' )
 const { join, CurrentDirectory, toPosixSep } = require( 'pathname' )
-const { writeTextFileSync, deleteFileSync } = require( 'filesystem' )
+const { writeTextFileSync, deleteFileSync, existsFileSync } = require( 'filesystem' )
 const genUUID = require( 'genUUID' )
 
 const LF = '\n'
@@ -15,24 +15,27 @@ function exec_node ( code_or_spec ) {
             ( ${ String( code_or_spec ) } )( ${ JSON.stringify( exec_node.options ) } )
         } )()` )
     }
+    try {
+        const { stdOut, stdErr } = WShell.Exec( `node ${ spec }` )
+        let outStream = []
+        let errStream = []
 
-    const { stdOut, stdErr } = WShell.Exec( `node ${ spec }` )
+        while ( !stdOut.AtEndOfStream || !stdErr.AtEndOfStream ) {
+            const outLine = stdOut.ReadLine()
+            outLine != NONE ? outStream.push( outLine ) : NONE
 
-    let outStream = []
-    let errStream = []
+            const errLine = stdErr.ReadLine()
+            errLine != NONE ? errStream.push( errLine ) : NONE
+        }
 
+        return { stdout: outStream.join( LF ), stderr: errStream.join( LF ) }
 
-    while ( !stdOut.AtEndOfStream || !stdErr.AtEndOfStream ) {
-        const outLine = stdOut.ReadLine()
-        outLine != NONE ? outStream.push( outLine ) : NONE
+    } catch ( error ) {
 
-        const errLine = stdErr.ReadLine()
-        errLine != NONE ? errStream.push( errLine ) : NONE
+    } finally {
+        if ( isCode && existsFileSync( spec ) ) deleteFileSync( spec )
     }
 
-    if ( isCode ) deleteFileSync( spec )
-
-    return { stdout: outStream.join( LF ), stderr: errStream.join( LF ) }
 }
 
 exec_node.options = {
