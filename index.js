@@ -1,6 +1,6 @@
 const WShell = require( 'WScript.Shell' )
 const { join, CurrentDirectory, toPosixSep } = require( 'pathname' )
-const { writeTextFileSync, deleteFileSync, existsFileSync } = require( 'filesystem' )
+const { writeTextFileSync, deleteFileSync, existsFileSync, ByteToText } = require( 'filesystem' )
 const genUUID = require( 'genUUID' )
 
 const LF = '\n'
@@ -21,7 +21,7 @@ function exec_node ( code_or_spec ) {
         let errStream = []
 
         while ( !stdOut.AtEndOfStream ) {
-            const outLine = stdOut.ReadLine()
+            const outLine = ByteToText( stdOut.ReadLine(), 'UTF-8' )
             if ( outLine != NONE ) {
                 console.print( outLine + LF )
                 outStream.push( outLine )
@@ -29,7 +29,7 @@ function exec_node ( code_or_spec ) {
         }
 
         while ( !stdErr.AtEndOfStream ) {
-            const errLine = stdErr.ReadLine()
+            const errLine = ByteToText( stdErr.ReadLine(), 'UTF-8' )
             if ( errLine != NONE ) {
                 console.print( errLine + LF )
                 errStream.push( errLine )
