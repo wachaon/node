@@ -20,12 +20,20 @@ function exec_node ( code_or_spec ) {
         let outStream = []
         let errStream = []
 
-        while ( !stdOut.AtEndOfStream || !stdErr.AtEndOfStream ) {
+        while ( !stdOut.AtEndOfStream ) {
             const outLine = stdOut.ReadLine()
-            outLine != NONE ? outStream.push( outLine ) : NONE
+            if ( outLine != NONE ) {
+                console.print( outLine + LF )
+                outStream.push( outLine )
+            }
+        }
 
+        while ( !stdErr.AtEndOfStream ) {
             const errLine = stdErr.ReadLine()
-            errLine != NONE ? errStream.push( errLine ) : NONE
+            if ( errLine != NONE ) {
+                console.print( errLine + LF )
+                errStream.push( errLine )
+            }
         }
 
         return { stdout: outStream.join( LF ), stderr: errStream.join( LF ) }
