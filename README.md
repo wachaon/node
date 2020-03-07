@@ -30,7 +30,7 @@ const hoge = node( () => {
     const path = require( 'path' )
     console.log( JSON.stringify( Object.keys( path ), null, 2 ) )
 } )
-console.log( hoge.stdout )
+
 ```
 
 ### When using __dirname and __filename
@@ -41,5 +41,16 @@ const node = require( '@wachaon/node' )
 node.options = { __dirname, __filename }
 
 const hoge = ( { __dirname, __filename } ) => console.log( `__dirname: ${ __dirname }\n__filename: ${ __filename }` )
-console.log( node( hoge ).stdout )
+```
+
+### When receiving as JSON without outputting to the console
+
+```javascript
+const node = require( '@wachaon/node' )
+node.options.console = false
+const hoge = node( () => {
+    const path = require( 'path' )
+    console.log( JSON.stringify( Object.keys( path ), null, 2 ) )
+} )
+console.log( hoge.stdout )
 ```
