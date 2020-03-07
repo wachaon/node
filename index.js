@@ -2,6 +2,7 @@ const WShell = require( 'WScript.Shell' )
 const { join, CurrentDirectory, toPosixSep } = require( 'pathname' )
 const { writeTextFileSync, deleteFileSync, existsFileSync, ByteToText } = require( 'filesystem' )
 const genUUID = require( 'genUUID' )
+const Buffer = require( 'buffer')
 
 const LF = '\n'
 const NONE = ''
@@ -12,8 +13,17 @@ function exec_node ( code_or_spec ) {
 
     if ( isCode ) {
         writeTextFileSync( spec, `( () => {
+            const __wesStdLog__ = ( type, ...args ) => {
+                const { format } = require( 'util' )
+                const log = format( ...args )
+                const uint16 = Uint16Array.from( log, ( c ) => c.charCodeAt( 0 ) )
+                if ( type === 'log' ) process.stdout.write( JSON.stringify( Array.from( uint16 ) ) + '\\n' )
+                else process.stderr.write( JSON.stringify( Array.from( uint16 ) ) + '\\n' )
+            }
+            console.log = ( ...args ) => { __wesStdLog__( 'log', ...args ) }
+            console.error = ( ...args ) => { __wesStdLog__( 'error', ...args ) };
             ( ${ String( code_or_spec ) } )( ${ JSON.stringify( exec_node.options ) } )
-        } )()` )
+        } )()`, 'UTF-8' )
     }
     try {
         const { stdOut, stdErr } = WShell.Exec( `node ${ spec }` )
@@ -21,17 +31,17 @@ function exec_node ( code_or_spec ) {
         let errStream = []
 
         while ( !stdOut.AtEndOfStream ) {
-            const outLine = ByteToText( stdOut.ReadLine(), 'UTF-8' )
+            const outLine = JSON.parse( stdOut.ReadLine() ).map( v => String.fromCharCode( v ) ).join( NONE )
             if ( outLine != NONE ) {
-                console.print( outLine + LF )
+                if( exec_node.options.console ) console.print( outLine + LF )
                 outStream.push( outLine )
             }
         }
 
         while ( !stdErr.AtEndOfStream ) {
-            const errLine = ByteToText( stdErr.ReadLine(), 'UTF-8' )
+            const errLine = JSON.parse( stdErr.ReadLine() ).map( v => String.fromCharCode( v ) ).join( NONE )
             if ( errLine != NONE ) {
-                console.print( errLine + LF )
+                if( exec_node.options.console ) console.print( errLine + LF )
                 errStream.push( errLine )
             }
         }
@@ -47,6 +57,7 @@ function exec_node ( code_or_spec ) {
 }
 
 exec_node.options = {
+    console: true,
     __dirname: toPosixSep( CurrentDirectory ),
     __filename: join( CurrentDirectory, __filename.match( /(?!\/)[^\/]+$/ )[0] )
 }
