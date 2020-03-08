@@ -17,8 +17,7 @@ Return value will be `{ stdout: String, stderr: String }`
 ```javascript
 const node = require( '@wachaon/node' )
 
-const hoge = node( 'sample.js' ).stdout
-console.log( hoge )
+node( 'sample.js' )
 ```
 
 ### When injecting functions directly

@@ -1,30 +1,29 @@
 const WShell = require( 'WScript.Shell' )
 const { join, CurrentDirectory, toPosixSep } = require( 'pathname' )
-const { writeTextFileSync, deleteFileSync, existsFileSync, ByteToText } = require( 'filesystem' )
+const { writeTextFileSync, deleteFileSync, existsFileSync, readTextFileSync } = require( 'filesystem' )
 const genUUID = require( 'genUUID' )
-const Buffer = require( 'buffer')
 
 const LF = '\n'
 const NONE = ''
 
 function exec_node ( code_or_spec ) {
     const isCode = typeof code_or_spec === 'function'
-    const spec = isCode ? join( exec_node.options.__dirname, genUUID() + '.js' ) : String( code_or_spec )
+    const source = isCode ? String( code_or_spec ) : `() => { ${ readTextFileSync( code_or_spec ) } }`
+    const spec = join( exec_node.options.__dirname, genUUID() + '.js' )
 
-    if ( isCode ) {
-        writeTextFileSync( spec, `( () => {
-            const __wesStdLog__ = ( type, ...args ) => {
-                const { format } = require( 'util' )
-                const log = format( ...args )
-                const uint16 = Uint16Array.from( log, ( c ) => c.charCodeAt( 0 ) )
-                if ( type === 'log' ) process.stdout.write( JSON.stringify( Array.from( uint16 ) ) + '\\n' )
-                else process.stderr.write( JSON.stringify( Array.from( uint16 ) ) + '\\n' )
-            }
-            console.log = ( ...args ) => { __wesStdLog__( 'log', ...args ) }
-            console.error = ( ...args ) => { __wesStdLog__( 'error', ...args ) };
-            ( ${ String( code_or_spec ) } )( ${ JSON.stringify( exec_node.options ) } )
-        } )()`, 'UTF-8' )
-    }
+    writeTextFileSync( spec, `( () => {
+        const __wesStdLog__ = ( type, ...args ) => {
+            const { format } = require( 'util' )
+            const log = format( ...args )
+            const uint16 = Uint16Array.from( log, ( c ) => c.charCodeAt( 0 ) )
+            if ( type === 'log' ) process.stdout.write( JSON.stringify( Array.from( uint16 ) ) + '\\n' )
+            else process.stderr.write( JSON.stringify( Array.from( uint16 ) ) + '\\n' )
+        }
+        console.log = ( ...args ) => { __wesStdLog__( 'log', ...args ) }
+        console.error = ( ...args ) => { __wesStdLog__( 'error', ...args ) };
+        ( ${ source } )( ${ JSON.stringify( exec_node.options ) } )
+    } )()`, 'UTF-8' )
+
     try {
         const { stdOut, stdErr } = WShell.Exec( `node ${ spec }` )
         let outStream = []
