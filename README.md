@@ -26,18 +26,17 @@ console.log( hoge )
 ```javascript
 const node = require( '@wachaon/node' )
 
-const hoge = node( () => {
+node( () => {
     const path = require( 'path' )
-    console.log( JSON.stringify( Object.keys( path ), null, 2 ) )
+    const { inspect } = require( 'util' )
+    console.log( inspect( path, { colors: true } ) )
 } )
-
 ```
 
 ### When using __dirname and __filename
 
 ```javascript
 const node = require( '@wachaon/node' )
-
 node.options = { __dirname, __filename }
 
 const hoge = ( { __dirname, __filename } ) => console.log( `__dirname: ${ __dirname }\n__filename: ${ __filename }` )
@@ -47,7 +46,7 @@ const hoge = ( { __dirname, __filename } ) => console.log( `__dirname: ${ __dirn
 
 ```javascript
 const node = require( '@wachaon/node' )
-node.options.console = false
+node.options.silent = true
 const hoge = node( () => {
     const path = require( 'path' )
     console.log( JSON.stringify( Object.keys( path ), null, 2 ) )
