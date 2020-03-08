@@ -37,9 +37,10 @@ node( () => {
 
 ```javascript
 const node = require( '@wachaon/node' )
-node.options = { __dirname, __filename }
+node.options.__dirname = __dirname
+node.options.__filename = __filename
 
-const hoge = ( { __dirname, __filename } ) => console.log( `__dirname: ${ __dirname }\n__filename: ${ __filename }` )
+node( ( { __dirname, __filename } ) => console.log( `__dirname: ${ __dirname }\n__filename: ${ __filename }` ) )
 ```
 
 ### When receiving as JSON without outputting to the console
@@ -47,9 +48,9 @@ const hoge = ( { __dirname, __filename } ) => console.log( `__dirname: ${ __dirn
 ```javascript
 const node = require( '@wachaon/node' )
 node.options.silent = true
+
 const hoge = node( () => {
-    const path = require( 'path' )
-    console.log( JSON.stringify( Object.keys( path ), null, 2 ) )
+    console.log( JSON.stringify( process, null, 2 ) )
 } )
-console.log( hoge.stdout )
+console.log( JSON.parse( hoge.stdout ).version )
 ```

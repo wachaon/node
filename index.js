@@ -33,7 +33,7 @@ function exec_node ( code_or_spec ) {
         while ( !stdOut.AtEndOfStream ) {
             const outLine = JSON.parse( stdOut.ReadLine() ).map( v => String.fromCharCode( v ) ).join( NONE )
             if ( outLine != NONE ) {
-                if( exec_node.options.silent ) console.print( outLine + LF )
+                if( !exec_node.options.silent ) console.print( outLine + LF )
                 outStream.push( outLine )
             }
         }
@@ -41,7 +41,7 @@ function exec_node ( code_or_spec ) {
         while ( !stdErr.AtEndOfStream ) {
             const errLine = JSON.parse( stdErr.ReadLine() ).map( v => String.fromCharCode( v ) ).join( NONE )
             if ( errLine != NONE ) {
-                if( exec_node.options.silent ) console.print( errLine + LF )
+                if( !exec_node.options.silent ) console.print( errLine + LF )
                 errStream.push( errLine )
             }
         }
